@@ -6,7 +6,7 @@ set -o pipefail
 temp="/tmp/ueot-install"
 args="$*"
 
-UEOT_HTTP_PORT="10080"
+UEOT_HTTP_PORT="20080"
 UEOT_VERSION="v1.2.1"
 
 USERNAME="ueot"
