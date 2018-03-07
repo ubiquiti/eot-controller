@@ -7,7 +7,7 @@ temp="/tmp/ueot-install"
 args="$*"
 
 UEOT_HTTP_PORT="20080"
-UEOT_VERSION="v1.2.1"
+UEOT_VERSION="v1.2.3"
 
 USERNAME="ueot"
 HOME_DIR="/home/${USERNAME}"
@@ -145,6 +145,7 @@ services:
     image: postgres:9.6.1-alpine
     restart: always
     volumes:
+      - /etc/localtime:/etc/localtime:ro
       - /home/ueot/postgres:/var/lib/postgresql/data/pgdata
     ports:
       - 6432:5432
@@ -152,24 +153,28 @@ services:
       - POSTGRES_DB=postgres
       - PGDATA=/var/lib/postgresql/data/pgdata
 
-  mongo:
-    container_name: ueot-mongo
-    image: mongo:3.0
-    command: '--nojournal'
+  redis:
+    container_name: ueot-redis
+    image: redis:alpine
     restart: always
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
     ports:
-      - 27217:27017
+      - 6379:6379
 
   ueot:
     container_name: ueot
-    image: ubnt/eot:1.2.1
+    image: ubnt/eot:1.2.3
     restart: always
     volumes:
+      - /etc/localtime:/etc/localtime:ro
       - /home/ueot/logs:/app/logs
     network_mode: host
+    environment:
+      - PLATFORM=linux
     depends_on:
       - postgres
-      - mongo
+      - redis
 
 EOF
 }
