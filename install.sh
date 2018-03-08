@@ -7,7 +7,7 @@ temp="/tmp/ueot-install"
 args="$*"
 
 UEOT_HTTP_PORT="20080"
-UEOT_VERSION="v1.2.3"
+UEOT_VERSION="v1.2.4"
 
 USERNAME="ueot"
 HOME_DIR="/home/${USERNAME}"
@@ -132,7 +132,12 @@ create_docker_compose_file() {
   cd "${HOME_DIR}"
 
   if [ -f docker-compose.yml ]; then
-    docker-compose down
+    docker-compose down --remove-orphans
+    {
+      docker rmi $(docker images --format '{{.Repository}}:{{.Tag}}' | grep 'ubnt/eot')
+    } || {
+      echo "WARNING: Failed to remove previous ubnt/eot image"
+    }
     rm docker-compose.yml
   fi
 
@@ -145,7 +150,6 @@ services:
     image: postgres:9.6.1-alpine
     restart: always
     volumes:
-      - /etc/localtime:/etc/localtime:ro
       - /home/ueot/postgres:/var/lib/postgresql/data/pgdata
     ports:
       - 6432:5432
@@ -157,17 +161,14 @@ services:
     container_name: ueot-redis
     image: redis:alpine
     restart: always
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
     ports:
       - 6379:6379
 
   ueot:
     container_name: ueot
-    image: ubnt/eot:1.2.3
+    image: ubnt/eot:1.2.4
     restart: always
     volumes:
-      - /etc/localtime:/etc/localtime:ro
       - /home/ueot/logs:/app/logs
     network_mode: host
     environment:
