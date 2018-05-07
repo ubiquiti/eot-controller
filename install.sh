@@ -7,7 +7,7 @@ temp="/tmp/ueot-install"
 args="$*"
 
 UEOT_HTTP_PORT="20080"
-UEOT_VERSION="v1.2.7"
+UEOT_VERSION="v1.3.0"
 
 USERNAME="ueot"
 HOME_DIR="/home/${USERNAME}"
@@ -166,7 +166,7 @@ services:
 
   ueot:
     container_name: ueot
-    image: ubnt/eot:1.2.7
+    image: ubnt/eot:1.3.0
     restart: always
     volumes:
       - /home/ueot/logs:/app/logs
