@@ -7,7 +7,7 @@ temp="/tmp/ueot-install"
 args="$*"
 
 UEOT_HTTP_PORT="20080"
-UEOT_VERSION="v1.4.0"
+UEOT_VERSION="1.4.0"
 
 USERNAME="ueot"
 HOME_DIR="/home/${USERNAME}"
@@ -125,7 +125,7 @@ change_owner() {
 }
 
 write_metadata() {
-  echo "version=${UEOT_VERSION}" | tee ${HOME_DIR}/metadata
+  echo "version=v${UEOT_VERSION}" | tee ${HOME_DIR}/metadata
 }
 
 create_docker_compose_file() {
