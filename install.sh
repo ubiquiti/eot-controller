@@ -7,7 +7,7 @@ temp="/tmp/ueot-install"
 args="$*"
 
 UEOT_HTTP_PORT="20080"
-UEOT_VERSION="v1.3.6"
+UEOT_VERSION="v1.4.0"
 
 USERNAME="ueot"
 HOME_DIR="/home/${USERNAME}"
@@ -141,8 +141,7 @@ create_docker_compose_file() {
     rm docker-compose.yml
   fi
 
-cat << EOF > docker-compose.yml
-version: '2'
+echo "version: '2'
 
 services:
   postgres:
@@ -166,7 +165,7 @@ services:
 
   ueot:
     container_name: ueot
-    image: ubnt/eot:1.3.6
+    image: ubnt/eot:${UEOT_VERSION}
     restart: always
     volumes:
       - /home/ueot/logs:/app/logs
@@ -176,8 +175,7 @@ services:
     depends_on:
       - postgres
       - redis
-
-EOF
+" > docker-compose.yml
 }
 
 start_docker_containers() {
