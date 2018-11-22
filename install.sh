@@ -7,7 +7,12 @@ temp="/tmp/ueot-install"
 args="$*"
 
 UEOT_HTTP_PORT="20080"
-UEOT_VERSION="1.4.0"
+UEOT_HTTPS_PORT="20443"
+
+LOG_DIR="/var/log/unifi-led"
+LOG_FILENAME="led-controller.log"
+
+UEOT_VERSION="1.4.1"
 
 USERNAME="ueot"
 HOME_DIR="/home/${USERNAME}"
@@ -156,13 +161,6 @@ services:
       - POSTGRES_DB=postgres
       - PGDATA=/var/lib/postgresql/data/pgdata
 
-  redis:
-    container_name: ueot-redis
-    image: redis:alpine
-    restart: always
-    ports:
-      - 6379:6379
-
   ueot:
     container_name: ueot
     image: ubnt/eot:${UEOT_VERSION}
@@ -174,8 +172,15 @@ services:
       - PLATFORM=linux
     depends_on:
       - postgres
-      - redis
 " > docker-compose.yml
+}
+
+create_log_dir() {
+  if [ ! -d "$LOG_DIR" ]; then
+    mkdir "$LOG_DIR"
+    touch "$LOG_DIR/$LOG_FILENAME"
+    chown -R "$USERNAME" "$LOG_DIR"
+  fi
 }
 
 start_docker_containers() {
@@ -197,6 +202,7 @@ confirm_success() {
     sleep 3s
     ueotRunning=true
     nc -z 127.0.0.1 "${UEOT_HTTP_PORT}" && break
+    nc -z 127.0.0.1 "${UEOT_HTTPS_PORT}" && break
     echo "."
     ueotRunning=false
     n=$((n+1))
@@ -221,6 +227,7 @@ fi
 create_docker_compose_file
 change_owner
 start_docker_containers
+create_log_dir
 write_metadata
 confirm_success
 
