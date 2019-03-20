@@ -6,13 +6,12 @@ set -o pipefail
 temp="/tmp/ueot-install"
 args="$*"
 
-UEOT_HTTP_PORT="20080"
 UEOT_HTTPS_PORT="20443"
 
 LOG_DIR="/var/log/unifi-led"
 LOG_FILENAME="led-controller.log"
 
-UEOT_VERSION="1.5.1"
+UEOT_VERSION="1.5.2"
 
 USERNAME="ueot"
 HOME_DIR="/home/${USERNAME}"
@@ -146,7 +145,8 @@ create_docker_compose_file() {
     rm docker-compose.yml
   fi
 
-echo "version: '2'
+cat << EOF > docker-compose.yml
+version: '2'
 
 services:
   postgres:
@@ -166,21 +166,14 @@ services:
     image: ubnt/eot:${UEOT_VERSION}
     restart: always
     volumes:
-      - /home/ueot/logs:/app/logs
+      - /var/log/unifi-led:/var/logs/unifi-led
     network_mode: host
     environment:
       - PLATFORM=linux
     depends_on:
       - postgres
-" > docker-compose.yml
-}
 
-create_log_dir() {
-  if [ ! -d "$LOG_DIR" ]; then
-    mkdir "$LOG_DIR"
-    touch "$LOG_DIR/$LOG_FILENAME"
-    chown -R "$USERNAME" "$LOG_DIR"
-  fi
+EOF
 }
 
 start_docker_containers() {
@@ -194,6 +187,14 @@ start_docker_containers() {
   fi
 }
 
+create_log_dir() {
+  if [ ! -d "$LOG_DIR" ]; then
+    mkdir "$LOG_DIR"
+    touch "$LOG_DIR/$LOG_FILENAME"
+    chown -R "$USERNAME" "$LOG_DIR"
+  fi
+}
+
 confirm_success() {
   echo "Waiting for UEOT to start"
   n=0
@@ -201,7 +202,6 @@ confirm_success() {
   do
     sleep 3s
     ueotRunning=true
-    nc -z 127.0.0.1 "${UEOT_HTTP_PORT}" && break
     nc -z 127.0.0.1 "${UEOT_HTTPS_PORT}" && break
     echo "."
     ueotRunning=false
