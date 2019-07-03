@@ -11,7 +11,7 @@ UEOT_HTTPS_PORT="20443"
 LOG_DIR="/var/log/unifi-led"
 LOG_FILENAME="led-controller.log"
 
-UEOT_VERSION="1.5.5"
+UEOT_VERSION="1.5.6"
 
 USERNAME="ueot"
 HOME_DIR="/home/${USERNAME}"
